@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Control Panel</title>
+  <style>
+    /* Reset default styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f7fa;
+      color: #333;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      color: #34495e;
+    }
+
+    #dashboard {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    #server-status {
+      margin-bottom: 20px;
+    }
+
+    #server-status h2 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+    }
+
+    #status {
+      font-size: 1.2rem;
+      color: #e74c3c; /* Red color by default */
+    }
+
+    #controls {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .control-btn {
+      padding: 12px 20px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .control-btn:hover {
+      background-color: #2980b9;
+      transform: scale(1.05);
+    }
+
+    #server-logs {
+      margin-top: 20px;
+    }
+
+    #server-logs h3 {
+      font-size: 1.3rem;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    #logList {
+      list-style-type: none;
+    }
+
+    #logList li {
+      background: #ecf0f1;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+    }
+
+    #logList li:nth-child(odd) {
+      background: #f9fafb;
+    }
+
+    #logList li:hover {
+      background: #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Server Control Panel</h1>
+  </header>
+  <div id="dashboard">
+    <div id="server-status">
+      <h2>Server Status</h2>
+      <p id="status">Loading...</p>
+    </div>
+    <div id="controls">
+      <button id="startServer" class="control-btn">Start Server</button>
+      <button id="stopServer" class="control-btn">Stop Server</button>
+      <button id="rebootServer" class="control-btn">Reboot Server</button>
+    </div>
+    <div id="server-logs">
+      <h3>Server Logs</h3>
+      <ul id="logList"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Fetch and update server status
+    function fetchServerStatus() {
+      fetch('/server-status')
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('status').innerText = data.status;
+          if (data.status === "Running") {
+            document.getElementById('status').style.color = "#2ecc71"; // Green
+          } else {
+            document.getElementById('status').style.color = "#e74c3c"; // Red
+          }
+        });
+    }
+
+    // Fetch and display logs
+    function fetchLogs() {
+      fetch('/server-logs')
+        .then(response => response.json())
+        .then(data => {
+          const logList = data.logs.split('\n').map(log => `<li>${log}</li>`).join('');
+          document.getElementById('logList').innerHTML = logList;
+        });
+    }
+
+    // Start server request
+    document.getElementById('startServer').addEventListener('click', () => {
+      fetch('/start-server', { method: 'POST' })
+        .then(response => response.text())
+        .then(message => alert(message));
+    });
+
+    // Stop server request
+    document.getElementById('stopServer').addEventListener('click', () => {
+      fetch('/stop-server', { method: 'POST' })
+        .then(response => response.text())
+        .then(message => alert(message));
+    });
+
+    // Reboot server request
+    document.getElementById('rebootServer').addEventListener('click', () => {
+      fetch('/reboot-server', { method: 'POST' })
+        .then(response => response.text())
+        .then(message => alert(message));
+    });
+
+    // Initialize dashboard
+    fetchServerStatus();
+    fetchLogs();
+  </script>
+</body>
+</html>
